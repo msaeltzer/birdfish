@@ -1,7 +1,10 @@
-library(wordcloud)
 
-#library(profvis)
-#profvis(runApp())
+
+if(!require(wordcloud)){install.packages("wordcloud")}
+if(!require(shiny)){install.packages("shiny")}
+
+library(wordcloud)
+library(shiny)
 
 find<-function(df,x){df[,which(names(df)==x)]}
 
@@ -19,9 +22,6 @@ prom<-c("Beatrix von Storch","Alice Weidel"
         ,"Karl Lauterbach"
         ,"Niels Annen")
 
-
-        # dataset prep and import
-        
 me<-read.csv2("https://raw.githubusercontent.com/msaeltzer/birdfish/master/data.csv")
 w1<-read.csv("https://raw.githubusercontent.com/msaeltzer/birdfish/master/words1.csv")
 w2<-read.csv("https://raw.githubusercontent.com/msaeltzer/birdfish/master/words2.csv")
@@ -29,14 +29,11 @@ w2<-read.csv("https://raw.githubusercontent.com/msaeltzer/birdfish/master/words2
 w1$English<-w1$translation
 w1$German<-w1$term
 
-
-
 w1$cult_pos<-w1$cult
 w1$econ_pos<-w1$econ
 
 w2$cult_pos<-w2$cult
 w2$econ_pos<-w2$econ
-
 
 w2$English<-w2$translation
 w2$German<-w2$term
@@ -82,7 +79,7 @@ ui_full<-fluidPage("Twitter Positions of German MP's",
             if(input$pols=="On"){
               for(i in 1:length(prom)){
               t<-me[me$fullname==prom[i],]
-              text(find(t,input$scale1),find(t,input$scale2),labels=t$fullname,col=pcols2[t$party])
+              text(find(t,input$scale1),find(t,input$scale2),labels=t$fullname,col=pcols[t$party])
               }
             }
             
@@ -92,9 +89,7 @@ ui_full<-fluidPage("Twitter Positions of German MP's",
             wo<-rbind(wo1,wo2)
             textplot(find(wo,input$scale1),find(wo,input$scale2),words =find(wo,input$language),cex=0.4,new=F,show.lines=F)
             }
-              
             
-
           })
           
         }

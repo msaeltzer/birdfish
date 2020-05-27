@@ -4,6 +4,9 @@ library(wordcloud)
 #profvis(runApp())
 
 find<-function(df,x){df[,which(names(df)==x)]}
+
+pcols<-c('dark blue','black','light blue','green','purple','gold1','grey','red')
+
 prom<-c("Beatrix von Storch","Alice Weidel"
         ,"Jürgen Trittin"
         ,"Jens Spahn"
@@ -19,7 +22,7 @@ prom<-c("Beatrix von Storch","Alice Weidel"
 
         # dataset prep and import
         
-df<-read.csv2("https://raw.githubusercontent.com/msaeltzer/birdfish/master/data.csv")
+me<-read.csv2("https://raw.githubusercontent.com/msaeltzer/birdfish/master/data.csv")
 w1<-read.csv("https://raw.githubusercontent.com/msaeltzer/birdfish/master/words1.csv")
 w2<-read.csv("https://raw.githubusercontent.com/msaeltzer/birdfish/master/words2.csv")
 
@@ -55,8 +58,8 @@ ui_full<-fluidPage("Twitter Positions of German MP's",
                                        sidebarPanel(                           # control panel
                                          # We need three inputs so far: two scale selections and a on/off button
                                          # we choose from the scale varnames        
-                                         selectInput('scale1', 'Scale 1', names(df)[c(20:25)],selected=names(df)[20]),
-                                         selectInput('scale2', 'Scale 2', names(df)[c(20:25)],selected=names(df)[20]),
+                                         selectInput('scale1', 'Scale 1', names(me)[c(20:25)],selected=names(me)[20]),
+                                         selectInput('scale2', 'Scale 2', names(me)[c(20:25)],selected=names(me)[20]),
                                          selectInput('pols', 'Top Politicians',c("On","Off"),"Off"),
                                          sliderInput("wordcount","Display Words",min=0,max=100,value=0),
                                          selectInput('language', 'Language',c("German","English"),"German")
@@ -74,7 +77,7 @@ ui_full<-fluidPage("Twitter Positions of German MP's",
         server_full <- function(input, output) {
           # plot tab 1
           output$scatter<-renderPlot({
-          
+        
             plot(find(me,input$scale1),find(me,input$scale2),col=pcols[me$party],ylab=input$scale1,xlab=input$scale2,pch=19)
             if(input$pols=="On"){
               for(i in 1:length(prom)){

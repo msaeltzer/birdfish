@@ -119,7 +119,7 @@ server_full <- function(input, output) {
             ylab <- list(title = input$scale2, titlefont = f)            
             fig <- plot_ly(
                 d, x = ~x, y = ~ y, color = ~ party, text = ~ fullname, colors = pals
-            ) %>% add_markers() %>% layout(xaxis = xlab, yaxis = ylab) %>% add_text(text = ~ my_mp, textposition = "top right") %>% add_text(text = ~ top_mp, textposition = "top right")
+            ) %>% add_markers() %>% layout(xaxis = xlab, yaxis = ylab) %>% add_text(text = ~ my_mp, textposition = "top right", showlegend = FALSE) %>% add_text(text = ~ top_mp, textposition = "top right", showlegend = FALSE)
         })        
 }
 

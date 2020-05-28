@@ -100,9 +100,6 @@ ui_full<-fluidPage("Dimensions of Worduse on Twitter",
 input<-list()
 
 
-input$scale1<-"Economic_LR"
-input$scale2<-"Cultural_LR"
-input$wordcount<-100
 
 # we define what the server returns for input
 server_full <- function(input, output) {

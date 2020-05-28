@@ -22,9 +22,18 @@ prom<-c("Beatrix von Storch","Alice Weidel"
         ,"Karl Lauterbach"
         ,"Niels Annen")
 
-me<-read.csv2("https://raw.githubusercontent.com/msaeltzer/birdfish/master/data.csv")
-w1<-read.csv("https://raw.githubusercontent.com/msaeltzer/birdfish/master/words1.csv")
-w2<-read.csv("https://raw.githubusercontent.com/msaeltzer/birdfish/master/words2.csv")
+me<-read.csv2("https://raw.githubusercontent.com/msaeltzer/birdfish/master/data.csv",stringsAsFactors = F,encoding = "utf8")
+w1<-read.csv("https://raw.githubusercontent.com/msaeltzer/birdfish/master/words1.csv",stringsAsFactors = F)
+w2<-read.csv("https://raw.githubusercontent.com/msaeltzer/birdfish/master/words2.csv",stringsAsFactors = F)
+
+me$fullname<-iconv(me$fullname,from="latin1",to="UTF8")
+
+me$party<-iconv(me$party,from="latin1",to="UTF8")
+
+
+names(me)[20:25]<-c("Government_Opposition","Left_Right","Liberal_Conservative","Fourth Dimensions","Economic_LR","Cultural_LR")
+
+me$party<-as.factor(me$party)
 
 w1$English<-w1$translation
 w1$German<-w1$term
@@ -46,8 +55,8 @@ w2$German<-w2$term
 
 
         # we create a page with tabs: navbar page
-ui_full<-fluidPage("Twitter Positions of German MP's",
-                                     titlePanel("Comparing Dimensions"),    # give it a title
+ui_full<-fluidPage("Dimensions of Worduse on Twitter",
+                                     titlePanel("Twitter Positions of German MPs"),    # give it a title
                                      
                   
                                      sidebarLayout(                           # we choose a sidebar layout 
@@ -55,41 +64,54 @@ ui_full<-fluidPage("Twitter Positions of German MP's",
                                        sidebarPanel(                           # control panel
                                          # We need three inputs so far: two scale selections and a on/off button
                                          # we choose from the scale varnames        
-                                         selectInput('scale1', 'Scale 1', names(me)[c(20:25)],selected=names(me)[20]),
-                                         selectInput('scale2', 'Scale 2', names(me)[c(20:25)],selected=names(me)[20]),
+                                         selectInput('scale1', 'Dimension 1', names(me)[c(20:25)],selected=names(me)[24]),
+                                         selectInput('scale2', 'Dimension 2', names(me)[c(20:25)],selected=names(me)[25]),
                                          selectInput('pols', 'Top Politicians',c("On","Off"),"Off"),
-                                         sliderInput("wordcount","Display Words",min=0,max=100,value=0),
-                                         selectInput('language', 'Language',c("German","English"),"German")
-                                         
-                                       ),
+                                         selectInput("mps","Your MP:",me$fullname),
+                                         sliderInput("wordcount","Display Words",min=0,max=0,value=0),
+                                        selectInput('language', 'Language',c("German","English"),"German"),
+                                         selectInput('legend', 'Legend',c("On","Off"),"On")
+                                         ),                                       
                                        
                                        mainPanel(                              # plot panel
                                          plotOutput("scatter"),
+                                         h6("For words to be plotted, please try to run the App locally! You can find it as app_2.R https://github.com/msaeltzer/birdfish"),
+                                         
                                        ) 
                                        
                                      ) # end layout
         ) # end UI
+
+
 
         # we define what the server returns for input
         server_full <- function(input, output) {
           # plot tab 1
           output$scatter<-renderPlot({
         
-            plot(find(me,input$scale1),find(me,input$scale2),col=pcols[me$party],ylab=input$scale1,xlab=input$scale2,pch=19)
+            plot(find(me,input$scale1),find(me,input$scale2),col=pcols[me$party],ylab=input$scale2,xlab=input$scale1,pch=19)
             if(input$pols=="On"){
-              for(i in 1:length(prom)){
-              t<-me[me$fullname==prom[i],]
-              text(find(t,input$scale1),find(t,input$scale2),labels=t$fullname,col=pcols[t$party])
-              }
+              t<-me[me$fullname %in% prom,]
+              textplot(find(t,input$scale1),find(t,input$scale2),words=t$fullname,col=pcols[t$party],new=F,show.lines=F)
             }
             
+         t1<-me[me$fullname==input$mps,]
+         text(find(t1,input$scale1),find(t1,input$scale2),labels=t1$fullname,col=pcols[t1$party])
+                  
+                  
             if(input$wordcount>0){
             wo1<-w1[1:input$wordcount,]
             wo2<-w2[1:input$wordcount,]
             wo<-rbind(wo1,wo2)
             textplot(find(wo,input$scale1),find(wo,input$scale2),words =find(wo,input$language),cex=0.4,new=F,show.lines=F)
             }
-            
+         if(input$legend=="On"){
+         legend(
+                 x="topleft",
+                 legend=levels(me$party),
+                 col=pcols,
+                 pch=19)}
+         
           })
           
         }
